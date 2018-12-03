@@ -9,26 +9,28 @@ class CoarseGrainHashMap<K,V> implements Map<K,V> {
     private final HashMap<K,V> map;
 
     CoarseGrainHashMap( int capacity ) {
-	map = null;
+	    map = new HashMap<>(capacity);
     }
 
-    public boolean add(K k, V v) {
-	    return false;
+    synchronized public boolean add(K k, V v) {
+        map.put(k, v);
+        return map.containsKey(k);
     }
     
-    public boolean remove(K k) {
-	    return false;
+    synchronized public boolean remove(K k) {
+	    map.remove(k);
+	    return !map.containsKey(k);
     }
     
-    public boolean contains(K k) {
-	    return false;
+    synchronized public boolean contains(K k) {
+        return map.containsKey(k);
     }
     
-    public V get(K k) {
-	return null;
+    synchronized public V get(K k) {
+        return map.get(k);
     }
 
     public int debuggingCountElements() {
-	return 0;
+        return map.size();
     }
 }

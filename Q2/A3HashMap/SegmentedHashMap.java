@@ -5,39 +5,58 @@
  */
 
 import java.util.HashMap;
+import java.util.Random;
 
 class SegmentedHashMap<K,V> implements Map<K,V> {
     private final HashMap<K,V>[] segments;
     private final int num_segments;
 
     SegmentedHashMap( int numseg, int capacity ) {
-	num_segments = 0;
-	segments = null;
+	num_segments = numseg;
+	segments = new HashMap[capacity];
     }
 
     // Select a segment by hashing the key to a value in the range
     // 0 ... num_segments-1. Base yourself on k.hashCode().
     private int hash( K k ) {
-	return 0;
+        return 1;
     }
 
     public boolean add(K k, V v) {
-	return false;
+	    int segKey = hash(k);
+	    synchronized(segments[segKey]){
+	        segments[segKey].put(k,v);
+	        return segments[segKey].containsKey(k);
+        }
     }
     
     public boolean remove(K k) {
-	return false;
+        int segKey = hash(k);
+        synchronized(segments[segKey]){
+            segments[segKey].remove(k);
+            return !segments[segKey].containsKey(k);
+        }
     }
     
     public boolean contains(K k) {
-	return false;
+        int segKey = hash(k);
+        synchronized (segments[segKey]){
+            return segments[segKey].containsKey(k);
+        }
     }
     
     public V get(K k) {
-	return null;
+        int segKey = hash(k);
+        synchronized (segments[segKey]){
+            return segments[segKey].get(k);
+        }
     }
 
     public int debuggingCountElements() {
-	return 0;
+        int count = 0;
+        for(int i=0; i<segments.length; i++){
+            count += segments[i].size();
+        }
+        return count;
     }
 }

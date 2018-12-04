@@ -14,12 +14,16 @@ class SegmentedHashMap<K,V> implements Map<K,V> {
     SegmentedHashMap( int numseg, int capacity ) {
 	num_segments = numseg;
 	segments = new HashMap[capacity];
+
+	for(int i=0; i<segments.length; i++){
+	    segments[i] = new HashMap<>();
+	}
     }
 
     // Select a segment by hashing the key to a value in the range
     // 0 ... num_segments-1. Base yourself on k.hashCode().
     private int hash( K k ) {
-        return 1;
+        return k.hashCode() & (num_segments - 1);
     }
 
     public boolean add(K k, V v) {

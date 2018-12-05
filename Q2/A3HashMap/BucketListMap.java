@@ -30,13 +30,13 @@ public class BucketListMap<K, V> implements Map<K, V> {
 
 	Node( int hash ) {
 	    this.hash = hash;
-	    //this.next = new AtomicMarkableReference<>(null, false);
+	    this.next = new AtomicMarkableReference<>(null, false);
 	}
 	Node( int hash, K key, V value ) {
 	    this.hash = hash;
 	    this.key = key;
 	    this.value = value;
-	    //this.next = new AtomicMarkableReference<>(null, false);
+	    this.next = new AtomicMarkableReference<>(null, false);
 	}
     }
     private class Window {
@@ -154,8 +154,7 @@ public class BucketListMap<K, V> implements Map<K, V> {
     public BucketListMap() {
 	this.head = new Node( 0 );
 	Node tail = new Node( Integer.MAX_VALUE );
-	head.next.set(tail,true);
-	tail.next = null;
+	head.next = new AtomicMarkableReference<Node>(tail, false);
     }
     private BucketListMap(Node e) {
 	this.head  = e;

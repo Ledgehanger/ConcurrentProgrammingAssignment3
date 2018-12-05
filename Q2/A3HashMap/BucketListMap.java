@@ -24,17 +24,19 @@ public class BucketListMap<K, V> implements Map<K, V> {
     
     private class Node {
 	int hash;
-	Node next;
+	AtomicMarkableReference<Node> next;
 	K key;
 	V value;
 
 	Node( int hash ) {
 	    this.hash = hash;
+	    //this.next = new AtomicMarkableReference<>(null, false);
 	}
 	Node( int hash, K key, V value ) {
 	    this.hash = hash;
 	    this.key = key;
 	    this.value = value;
+	    //this.next = new AtomicMarkableReference<>(null, false);
 	}
     }
     private class Window {
@@ -50,27 +52,40 @@ public class BucketListMap<K, V> implements Map<K, V> {
 	Node pred = null;
 	Node curr = null;
 	Node succ = null;
-	while( true ) {
+
+	boolean [] marked = {false};
+	boolean snip;
+	retry: while( true ) {
 	    pred = head;
-	    curr = pred.next;
+	    curr = pred.next.getReference();
 	    while( true ) {
-		succ = curr.next;
+		    succ = curr.next.get(marked);
+		    while (marked[0]){
+		        snip = pred.next.compareAndSet(curr, succ, false, false);
+		        if(!snip) continue retry;
+		        curr = succ;
+		        succ = curr.next.get(marked);
+            }
 		if( curr.hash >= hash )
 		    return new Window( pred, curr );
 		pred = curr;
 		curr = succ;
+	        }
 	    }
-	}
     }
 
     public boolean contains( K key ) {
-	return get( key ) != null;
+        int hash = getHash(key);
+        Window window = find(head, hash);
+        Node pred = window.pred;
+        Node curr = window.curr;
+        return(curr.hash == hash);
     }
     public V get( K key ) {
 	int hash = getHash( key );
 	Node curr = this.head;
 	while( curr.hash < hash )
-	    curr = curr.next;
+	    curr = curr.next.getReference();
 	return ( curr.hash == hash ) ? curr.value : null;
     }
 
@@ -84,9 +99,9 @@ public class BucketListMap<K, V> implements Map<K, V> {
 		return false;
 	    } else {
 		Node node = new Node( hash, key, value );
-		node.next = curr;
-		pred.next = node;
-		return true;
+		node.next = new AtomicMarkableReference<>(curr, false);
+		if(pred.next.compareAndSet(curr, node, false, false))
+		    return true;
 	    }
 	}
     }
@@ -99,18 +114,22 @@ public class BucketListMap<K, V> implements Map<K, V> {
 	    Node pred = window.pred;
 	    Node curr = window.curr;
 	    if( curr.hash == hash )
-		return curr; // all sentinels are equal
+		    return curr; // all sentinels are equal
 	    else {
 		Node node = new Node( hash );
-		node.next = curr;
-		pred.next = node;
-		return node; // return the newly created node
+		node.next.set(pred.next.getReference(), false);
+		splice = pred.next.compareAndSet(curr, node, false, false);
+		if(splice)
+		    return node; // return the newly created node
+        else
+            continue;
 	    }
 	}
     }
 
     public boolean remove( K key ) {
 	int hash = getHash( key );
+	boolean snip;
 	while( true ) {
 	    Window window = find( head, hash );
 	    Node pred = window.pred;
@@ -119,8 +138,11 @@ public class BucketListMap<K, V> implements Map<K, V> {
 		return false;
 	    else {
 		// Unlink node
-		Node succ = curr.next;
-		pred.next = succ;
+		Node succ = curr.next.getReference();
+		snip = curr.next.attemptMark(succ, true);
+		if(!snip)
+		    continue;
+		pred.next.compareAndSet(curr, succ, false, false);
 		return true;
 	    }
 	}
@@ -132,7 +154,7 @@ public class BucketListMap<K, V> implements Map<K, V> {
     public BucketListMap() {
 	this.head = new Node( 0 );
 	Node tail = new Node( Integer.MAX_VALUE );
-	this.head.next = tail;
+	head.next.set(tail,true);
 	tail.next = null;
     }
     private BucketListMap(Node e) {
@@ -177,11 +199,11 @@ public class BucketListMap<K, V> implements Map<K, V> {
     
     public int debuggingCountElements() {
 	int count = 0;
-	Node curr = head.next;
+	Node curr = head.next.getReference();
 	while ( curr != null ) {
 	    if( curr.value != null ) // is this a sentinel node?
 		++count;
-	    curr = curr.next;
+	    curr = curr.next.getReference();
 	}
 	return count;
     }

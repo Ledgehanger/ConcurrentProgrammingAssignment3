@@ -200,7 +200,7 @@ public class BucketListMap<K, V> implements Map<K, V> {
 	int count = 0;
 	Node curr = head.next.getReference();
 	while ( curr != null ) {
-	    if( curr.value != null ) // is this a sentinel node?
+	    if( curr.value != null && !curr.next.isMarked() ) // is this a sentinel node?
 		++count;
 	    curr = curr.next.getReference();
 	}

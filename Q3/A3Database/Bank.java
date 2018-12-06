@@ -7,7 +7,7 @@ import java.util.Vector;
  * Auxiliary class to perform timing measurement and control
  * the experiments.
  *===========================================================*/
-class ResultAggregatorQ3  {
+class ResultAggregator  {
     public static final int NUM_WARMUP = 3;
     private int num_rounds;
     private int num_threads;
@@ -20,7 +20,7 @@ class ResultAggregatorQ3  {
     private long num_values[][];
     private volatile boolean round_done;
 
-    ResultAggregatorQ3( int nr, int np ) {
+    ResultAggregator( int nr, int np ) {
 	num_rounds = nr;
 	num_threads = np;
 	round = 0;
@@ -117,7 +117,7 @@ class ResultAggregatorQ3  {
 /*===========================================================
  * Process definition for processes that will execute queries.
  *===========================================================*/
-class TestProcessQ3 extends Thread {
+class TestProcess extends Thread {
     private final Database database;
     private final Table tbl_account;
     private final AtomicInteger next_account;
@@ -136,7 +136,7 @@ class TestProcessQ3 extends Thread {
     private final SQLTable t_account;
     private final SQLFieldList f_account;
 
-    TestProcessQ3( Database database_, Table tbl_a,
+    TestProcess( Database database_, Table tbl_a,
 		 AtomicInteger nxt_a, Vector<Integer> acct,
 		 boolean snl, int total_,
 		 int freq_sum_, int freq_create_,
@@ -539,7 +539,7 @@ class Bank {
 
 	ResultAggregator agg = new ResultAggregator( num_rounds, num_threads );
 
-	TestProcessQ3[] processes = new TestProcessQ3[num_threads];
+	TestProcess[] processes = new TestProcess[num_threads];
 
 	AtomicInteger ai_accounts = new AtomicInteger( num_accounts );
 	Vector<Integer> accounts = new Vector<Integer>( num_accounts, 1024 );
@@ -549,7 +549,7 @@ class Bank {
 	// Create all of the threads
 	for( int i=0; i < num_threads; ++i ) {
 	    processes[i]
-		= new TestProcessQ3( database, tbl_account,
+		= new TestProcess( database, tbl_account,
 				   ai_accounts, accounts, sum_needs_lock,
 				   sum_accounts, freq_sum,
 				   freq_create, i, agg );
@@ -563,7 +563,7 @@ class Bank {
 	// That's why will call the GC explicitly when reaching the barrier
 	// (see barrier creation). You would normally never call the GC
 	// directly.
-	for( TestProcessQ3 p : processes )
+	for( TestProcess p : processes )
 	    p.start();
 
 	// Trigger timer to terminate every round
@@ -578,7 +578,7 @@ class Bank {
 	}
 
 	// Join threads (cleanup properly).
-	for( TestProcessQ3 p : processes )
+	for( TestProcess p : processes )
 	    try { p.join(); } catch( InterruptedException e ) { }
 
 	// Get the results out.

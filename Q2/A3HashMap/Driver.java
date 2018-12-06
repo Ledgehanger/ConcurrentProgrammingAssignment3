@@ -3,7 +3,6 @@
  *===========================================================*/
 import java.util.concurrent.*;
 import java.util.Random;
-import java.util.HashSet;
 
 /*===========================================================
  * Auxiliary class to perform timing measurement and control
@@ -333,11 +332,11 @@ class TestProcess extends Thread {
     private int num_elems;
     private int num_gets;
     private int tid;
-    private ResultAggregator agg;
+    private ResultAggregatorQ3 agg;
     private Contents contents;
 
     TestProcess( int num_elems_, int num_gets_, int tid_,
-		 Map<IntValue,IntValue> hash, ResultAggregator agg_,
+		 Map<IntValue,IntValue> hash, ResultAggregatorQ3 agg_,
 		 Contents cnt_ ) {
 	hashtable = hash;
 	num_gets = num_gets_;
@@ -473,7 +472,7 @@ class Driver {
 			   + " threads."
 			   + " Doing " + num_rounds
 			   + " rounds of the experiment after "
-			   + ResultAggregator.NUM_WARMUP + " warmup"
+			   + ResultAggregatorQ3.NUM_WARMUP + " warmup"
 			   + " round(s) during " + msecs_measured
 			   + " milliseconds per round.");
         System.out.println("Hashtable contains " + set_size + " elements" );
@@ -481,11 +480,11 @@ class Driver {
         System.out.println("Hashtable concurrency " + concurrency );
 
 	Contents contents = new Contents( set_size, nthreads );
-	ResultAggregator agg
-	    = new ResultAggregator( num_rounds, num_gets, nthreads,
+	ResultAggregatorQ3 agg
+	    = new ResultAggregatorQ3( num_rounds, num_gets, nthreads,
 				    contents );
 
-	TestProcess[] processes = new TestProcess[nthreads];
+	TestProcessQ3[] processes = new TestProcessQ3[nthreads];
 
         System.out.println("Using hash table type: " + type );
 	Map<IntValue,IntValue> hashtable = null;
@@ -507,7 +506,7 @@ class Driver {
 	// Create all of the threads
 	for( int i=0; i < nthreads; ++i ) {
 	    processes[i]
-		= new TestProcess( set_size, num_gets, i,
+		= new TestProcessQ3( set_size, num_gets, i,
 				   hashtable, agg, contents );
 	}
 
@@ -523,7 +522,7 @@ class Driver {
 	    processes[i].start();
 
 	// Trigger timer to terminate every round
-	for( int r=0; r < num_rounds + ResultAggregator.NUM_WARMUP; ++r ) {
+	for(int r = 0; r < num_rounds + ResultAggregatorQ3.NUM_WARMUP; ++r ) {
 	    try {
 		Thread.sleep( msecs_measured );
 	    } catch (InterruptedException e) {

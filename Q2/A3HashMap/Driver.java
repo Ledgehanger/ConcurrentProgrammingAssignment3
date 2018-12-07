@@ -240,7 +240,7 @@ class Contents {
     private int values[];
     private Map<IntValue,IntValue> hashtable;
     private LFSR generator[];
-    public static final int MAX_LOG_THREADS = 3;
+    public static final int MAX_LOG_THREADS = 8;
     public static final int MAX_THREADS = 1 << MAX_LOG_THREADS;
     public static final int VALID_RANGE = LFSR.RANGE << 1;
     public static final int USED_RANGE = LFSR.RANGE << MAX_LOG_THREADS;

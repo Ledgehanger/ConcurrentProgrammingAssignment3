@@ -8,7 +8,7 @@ import java.util.Random;
  * Auxiliary class to perform timing measurement and control
  * the experiments.
  *===========================================================*/
-class ResultAggregator  {
+class ResultAggregatorQ2  {
     public static final int NUM_WARMUP = 3;
     private int num_rounds;
     private int num_gets;
@@ -23,7 +23,7 @@ class ResultAggregator  {
     private long num_values[];
     private volatile boolean round_done;
 
-    ResultAggregator( int nr, int nc, int np, Contents c ) {
+    ResultAggregatorQ2( int nr, int nc, int np, Contents c ) {
 	num_rounds = nr;
 	num_gets = nc;
 	num_threads = np;
@@ -327,16 +327,16 @@ class Contents {
  * Process definition for processes that will generate
  * accesses to the hash table.
  *===========================================================*/
-class TestProcess extends Thread {
+class TestProcessQ2 extends Thread {
     private Map<IntValue,IntValue> hashtable;
     private int num_elems;
     private int num_gets;
     private int tid;
-    private ResultAggregatorQ3 agg;
+    private ResultAggregatorQ2 agg;
     private Contents contents;
 
-    TestProcess( int num_elems_, int num_gets_, int tid_,
-		 Map<IntValue,IntValue> hash, ResultAggregatorQ3 agg_,
+    TestProcessQ2( int num_elems_, int num_gets_, int tid_,
+		 Map<IntValue,IntValue> hash, ResultAggregatorQ2 agg_,
 		 Contents cnt_ ) {
 	hashtable = hash;
 	num_gets = num_gets_;
@@ -480,11 +480,11 @@ class Driver {
         System.out.println("Hashtable concurrency " + concurrency );
 
 	Contents contents = new Contents( set_size, nthreads );
-	ResultAggregatorQ3 agg
-	    = new ResultAggregatorQ3( num_rounds, num_gets, nthreads,
+	ResultAggregatorQ2 agg
+	    = new ResultAggregatorQ2( num_rounds, num_gets, nthreads,
 				    contents );
 
-	TestProcessQ3[] processes = new TestProcessQ3[nthreads];
+	TestProcessQ2[] processes = new TestProcessQ2[nthreads];
 
         System.out.println("Using hash table type: " + type );
 	Map<IntValue,IntValue> hashtable = null;
@@ -506,7 +506,7 @@ class Driver {
 	// Create all of the threads
 	for( int i=0; i < nthreads; ++i ) {
 	    processes[i]
-		= new TestProcessQ3( set_size, num_gets, i,
+		= new TestProcessQ2( set_size, num_gets, i,
 				   hashtable, agg, contents );
 	}
 

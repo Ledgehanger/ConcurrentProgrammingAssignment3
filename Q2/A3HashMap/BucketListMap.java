@@ -16,7 +16,7 @@ import java.util.concurrent.atomic.*;
  */
 public class BucketListMap<K, V> implements Map<K, V> {
     private Node head;
-    static public final int WORD_SIZE = 23;
+    static public final int WORD_SIZE = 29;
     static private final int LO_BIT = 1;
     static private final int HI_BIT = 1 << (WORD_SIZE - 1);
     static private final int REG_BIT = 1 << WORD_SIZE;
@@ -135,7 +135,7 @@ public class BucketListMap<K, V> implements Map<K, V> {
 	    Node pred = window.pred;
 	    Node curr = window.curr;
 	    if( curr.hash != hash )
-		return false;
+			return false;
 	    else {
 		// Unlink node
 		Node succ = curr.next.getReference();
@@ -154,7 +154,7 @@ public class BucketListMap<K, V> implements Map<K, V> {
     public BucketListMap() {
 	this.head = new Node( 0 );
 	Node tail = new Node( Integer.MAX_VALUE );
-	head.next = new AtomicMarkableReference<Node>(tail, false);
+	head.next = new AtomicMarkableReference<>(tail, false);
     }
     private BucketListMap(Node e) {
 	this.head  = e;

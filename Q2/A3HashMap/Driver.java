@@ -240,7 +240,7 @@ class Contents {
     private int values[];
     private Map<IntValue,IntValue> hashtable;
     private LFSR generator[];
-    public static final int MAX_LOG_THREADS = 8;
+    public static final int MAX_LOG_THREADS = 5;
     public static final int MAX_THREADS = 1 << MAX_LOG_THREADS;
     public static final int VALID_RANGE = LFSR.RANGE << 1;
     public static final int USED_RANGE = LFSR.RANGE << MAX_LOG_THREADS;
@@ -472,7 +472,7 @@ class Driver {
 			   + " threads."
 			   + " Doing " + num_rounds
 			   + " rounds of the experiment after "
-			   + ResultAggregatorQ3.NUM_WARMUP + " warmup"
+			   + ResultAggregatorQ2.NUM_WARMUP + " warmup"
 			   + " round(s) during " + msecs_measured
 			   + " milliseconds per round.");
         System.out.println("Hashtable contains " + set_size + " elements" );
@@ -522,7 +522,7 @@ class Driver {
 	    processes[i].start();
 
 	// Trigger timer to terminate every round
-	for(int r = 0; r < num_rounds + ResultAggregatorQ3.NUM_WARMUP; ++r ) {
+	for(int r = 0; r < num_rounds + ResultAggregatorQ2.NUM_WARMUP; ++r ) {
 	    try {
 		Thread.sleep( msecs_measured );
 	    } catch (InterruptedException e) {

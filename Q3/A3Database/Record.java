@@ -1,11 +1,17 @@
 import java.util.ArrayList;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 class Record {
     private ArrayList<DataValue> data;
+    protected ReentrantReadWriteLock rwLock;
 
     Record( final int estimated_length ) {
 	data = new ArrayList<DataValue>( estimated_length );
+	rwLock = new ReentrantReadWriteLock();
     }
+
+    public ReentrantReadWriteLock getRWLock(){ return rwLock; }
 
     public boolean add( DataValue val ) {
 	data.add( val );

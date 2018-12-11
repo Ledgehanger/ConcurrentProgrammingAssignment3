@@ -1,22 +1,28 @@
 import java.util.Map;
 import java.util.Iterator;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 class Table {
     private final String name;
     private final TableIndex primary_index;
     private final TableSchema schema;
+    protected ReentrantReadWriteLock rwLock;
     
     // Constructor
     Table( final String name_, final TableSchema schema_ ) {
 	name = name_;
 	schema = schema_;
 	primary_index = new TableIndex( schema.getKey() );
+	rwLock = new ReentrantReadWriteLock();
     }
 
     // Get the name of the table
     public String getName() {
 	return name;
     }
+
+    // Get read lock associated with table
+	public ReentrantReadWriteLock getRWLock() { return rwLock; }
 
     // Check if a particular field (column) is a key
     public boolean isKey( final String field_name ) {

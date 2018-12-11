@@ -16,7 +16,7 @@ import java.util.concurrent.atomic.*;
  */
 public class BucketListMap<K, V> implements Map<K, V> {
     private Node head;
-    static public final int WORD_SIZE = 29;
+    static public final int WORD_SIZE = 24;
     static private final int LO_BIT = 1;
     static private final int HI_BIT = 1 << (WORD_SIZE - 1);
     static private final int REG_BIT = 1 << WORD_SIZE;

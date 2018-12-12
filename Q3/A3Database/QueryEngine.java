@@ -73,10 +73,12 @@ class QueryEngine {
 
         ArrayList<Record> records = method.getRecords();
 
-        for (int i = 0; i < records.size(); i++) {
-            ReentrantReadWriteLock recordWriteLock = records.get(i).getRWLock();
-            lockSet.add(recordWriteLock.readLock());
-            recordWriteLock.readLock().lock();
+        if(records.size() < table.getSchema().size()/2) {
+            for (int i = 0; i < records.size(); i++) {
+                ReentrantReadWriteLock recordWriteLock = records.get(i).getRWLock();
+                lockSet.add(recordWriteLock.readLock());
+                recordWriteLock.readLock().lock();
+            }
         }
         return new ResultSet( true );
     }
